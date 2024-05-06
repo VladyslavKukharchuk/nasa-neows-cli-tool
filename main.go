@@ -8,7 +8,7 @@ import (
 func main() {
 	defer handlerPanic()
 
-	neoWsJson := NeoWs.ShowNEOsByLastSevenDays()
+	neoWsJson := NeoWs.GetNEOsByDaysAgo(7)
 
 	fmt.Println(neoWsJson)
 }
