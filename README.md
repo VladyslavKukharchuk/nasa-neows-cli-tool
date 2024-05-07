@@ -64,7 +64,7 @@ Be sure to wait for this process to complete.
 docker run --name nasa-neows-cli-tool -e API_KEY=<your API key> nasa-neows-cli-tool
 ```
 
-Replace <your API key> with your actual API key.
+Replace `<your API key>` with your actual API key.
 
 
 ## Usage
@@ -74,3 +74,13 @@ Replace <your API key> with your actual API key.
 ```sh
 docker start -a nasa-neows-cli-tool
 ```
+
+
+## Run Tests
+
+```sh
+API_KEY=<your API key> go test ./...
+```
+We need an API key to run the tests
+
+Replace `<your API key>` with your actual API key.

@@ -1,13 +1,9 @@
 package util
 
-import (
-	"encoding/json"
-)
+import "encoding/json"
 
-func ConvertToJSON(data interface{}) (string, error) {
+func ConvertToJSON(data interface{}) string {
 	jsonData, err := json.Marshal(data)
-	if err != nil {
-		return "", err
-	}
-	return string(jsonData), nil
+	CheckError(err)
+	return string(jsonData)
 }

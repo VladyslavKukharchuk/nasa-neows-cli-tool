@@ -1,21 +1,22 @@
 package NeoWs
 
-import (
-	"nasa-neows-cli-tool/util"
-	"time"
-)
+import "nasa-neows-cli-tool/util"
 
-func GetNEOsByDaysAgo(daysCount int) string {
-	neoWsResponsesCh := make(chan NeoWsResponse, daysCount)
+func GetNEOsByDaysAgo(count int) string {
+	dates := util.GetDates(count)
+
+	neoWs := GetNEOsByDates(dates)
+	neoWsJson := util.ConvertToJSON(neoWs)
+
+	return neoWsJson
+}
+
+func GetNEOsByDates(dates []string) NeoWs {
+	neoWsResponsesCh := make(chan NeoWsResponse, len(dates))
 
 	go func() {
-		currentTime := time.Now()
-
-		for dayNumber := 0; dayNumber < daysCount; dayNumber++ {
-			selectedDay := currentTime.AddDate(0, 0, -dayNumber)
-			selectedDayDate := selectedDay.Format("2006-01-02")
-
-			neoWsData, err := getNeoWsByTimePeriod(selectedDayDate, selectedDayDate)
+		for _, date := range dates {
+			neoWsData, err := getNeoWsByTimePeriod(date, date)
 			util.CheckError(err)
 
 			neoWsResponsesCh <- neoWsData
@@ -29,14 +30,12 @@ func GetNEOsByDaysAgo(daysCount int) string {
 		neoWsResponses = append(neoWsResponses, neoWsResponse)
 	}
 
-	neoWsFormated := formatNearWsResponses(neoWsResponses)
-	neoWsJson, err := util.ConvertToJSON(neoWsFormated)
-	util.CheckError(err)
+	neoWs := FormatNearWsResponses(neoWsResponses)
 
-	return neoWsJson
+	return neoWs
 }
 
-func formatNearWsResponses(neoWsData []NeoWsResponse) NeoWs {
+func FormatNearWsResponses(neoWsData []NeoWsResponse) NeoWs {
 	var total int
 	var neoObjectsFormated []NearEarthObjects
 
