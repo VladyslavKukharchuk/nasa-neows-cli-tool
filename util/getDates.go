@@ -3,7 +3,7 @@ package util
 import "time"
 
 func GetDates(days int) []string {
-	var dates []string
+	dates := make([]string, days)
 	currentTime := time.Now()
 
 	for i := 0; i < days; i++ {

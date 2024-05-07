@@ -25,7 +25,7 @@ func GetNEOsByDates(dates []string) NeoWs {
 		close(neoWsResponsesCh)
 	}()
 
-	var neoWsResponses []NeoWsResponse
+	neoWsResponses := make([]NeoWsResponse, len(dates))
 	for neoWsResponse := range neoWsResponsesCh {
 		neoWsResponses = append(neoWsResponses, neoWsResponse)
 	}
