@@ -1,9 +1,9 @@
-package NeoWs
+package neows
 
 import (
 	"errors"
 	"io"
-	"nasa-neows-cli-tool/util"
+	"nasa-neows-cli-tool/jsonconverter"
 	"net/http"
 	"net/url"
 )
@@ -33,11 +33,18 @@ func getNeoWsByTimePeriod(URL, startDate, endDate, apiKey string) (NeoWsResponse
 	}
 
 	if resp.StatusCode != http.StatusOK {
-		apiError := util.ConvertFromJSON[NeoWsError](bytes)
+		apiError, err := jsonconverter.FromJSON[NeoWsError](bytes)
+		if err != nil {
+			return NeoWsResponse{}, err
+		}
+
 		return NeoWsResponse{}, errors.New(apiError.Error.Message)
 	}
 
-	neoWsData := util.ConvertFromJSON[NeoWsResponse](bytes)
+	neoWsData, err := jsonconverter.FromJSON[NeoWsResponse](bytes)
+	if err != nil {
+		return NeoWsResponse{}, err
+	}
 
 	return neoWsData, nil
 }

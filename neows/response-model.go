@@ -1,4 +1,4 @@
-package NeoWs
+package neows
 
 type NeoWsResponse struct {
 	Links            Links                        `json:"links"`

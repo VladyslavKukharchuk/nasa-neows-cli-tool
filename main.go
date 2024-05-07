@@ -2,15 +2,27 @@ package main
 
 import (
 	"fmt"
-	"nasa-neows-cli-tool/NeoWs"
+	"log"
+	"nasa-neows-cli-tool/neows"
 )
 
 func main() {
 	defer handlerPanic()
 
-	neoWsJSON := NeoWs.GetNEOsByDaysAgo(7)
+	if err := run(); err != nil {
+		log.Fatal(err)
+	}
+}
+
+func run() error {
+	neoWsJSON, err := neows.GetNEOsByDaysAgo(7)
+	if err != nil {
+		return err
+	}
 
 	fmt.Println(neoWsJSON)
+
+	return nil
 }
 
 func handlerPanic() {

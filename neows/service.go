@@ -1,18 +1,21 @@
-package NeoWs
+package neows
 
 import (
-	"nasa-neows-cli-tool/util"
+	"nasa-neows-cli-tool/jsonconverter"
 	"os"
 	"time"
 )
 
-func GetNEOsByDaysAgo(count int) string {
+func GetNEOsByDaysAgo(count int) (string, error) {
 	dates := getDates(count)
 
 	neoWs := GetNEOsByDates(dates)
-	neoWsJSON := util.ConvertToJSON(neoWs)
+	neoWsJSON, err := jsonconverter.ToJSON(neoWs)
+	if err != nil {
+		return "", err
+	}
 
-	return neoWsJSON
+	return neoWsJSON, nil
 }
 
 func getDates(days int) []string {
@@ -37,7 +40,9 @@ func GetNEOsByDates(dates []string) NeoWs {
 	go func() {
 		for _, date := range dates {
 			neoWsData, err := getNeoWsByTimePeriod(URL, date, date, apiKey)
-			util.CheckError(err)
+			if err != nil {
+				panic(err)
+			}
 
 			neoWsResponsesCh <- neoWsData
 		}

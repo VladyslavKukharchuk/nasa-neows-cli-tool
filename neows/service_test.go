@@ -1,7 +1,6 @@
-package NeoWs
+package neows
 
 import (
-	"fmt"
 	"reflect"
 	"testing"
 )
@@ -11,7 +10,6 @@ func TestGetNEOsByDates(t *testing.T) {
 		dates := []string{"2024-05-06"}
 
 		result := GetNEOsByDates(dates)
-		fmt.Println(result)
 
 		expected := NeoWs{
 			Total: 23,
