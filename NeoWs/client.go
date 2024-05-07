@@ -5,23 +5,34 @@ import (
 	"io"
 	"nasa-neows-cli-tool/util"
 	"net/http"
-	"os"
+	"net/url"
 )
 
-const URL = "https://api.nasa.gov/neo/rest/v1/"
+func getNeoWsByTimePeriod(URL, startDate, endDate, apiKey string) (NeoWsResponse, error) {
+	baseURL, err := url.Parse(URL + "feed")
+	if err != nil {
+		return NeoWsResponse{}, err
+	}
 
-var apiKey = os.Getenv("API_KEY")
+	params := url.Values{}
+	params.Add("start_date", startDate)
+	params.Add("end_date", endDate)
+	params.Add("api_key", apiKey)
+	baseURL.RawQuery = params.Encode()
 
-func getNeoWsByTimePeriod(startDate string, endDate string) (NeoWsResponse, error) {
-	resp, err := http.Get(URL + "feed?start_date=" + startDate + "&end_date=" + endDate + "&api_key=" + apiKey)
-	util.CheckError(err)
+	resp, err := http.Get(baseURL.String())
+	if err != nil {
+		return NeoWsResponse{}, err
+	}
 
 	defer resp.Body.Close()
 
 	bytes, err := io.ReadAll(resp.Body)
-	util.CheckError(err)
+	if err != nil {
+		return NeoWsResponse{}, err
+	}
 
-	if resp.StatusCode != 200 {
+	if resp.StatusCode != http.StatusOK {
 		apiError := util.ConvertFromJSON[NeoWsError](bytes)
 		return NeoWsResponse{}, errors.New(apiError.Error.Message)
 	}

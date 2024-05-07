@@ -1,9 +1,13 @@
 package NeoWs
 
-import "nasa-neows-cli-tool/util"
+import (
+	"nasa-neows-cli-tool/util"
+	"os"
+	"time"
+)
 
 func GetNEOsByDaysAgo(count int) string {
-	dates := util.GetDates(count)
+	dates := getDates(count)
 
 	neoWs := GetNEOsByDates(dates)
 	neoWsJSON := util.ConvertToJSON(neoWs)
@@ -11,12 +15,28 @@ func GetNEOsByDaysAgo(count int) string {
 	return neoWsJSON
 }
 
+func getDates(days int) []string {
+	dates := make([]string, 0)
+	currentTime := time.Now()
+
+	for i := 0; i < days; i++ {
+		date := currentTime.AddDate(0, 0, -i)
+		dateStr := date.Format("2006-01-02")
+		dates = append(dates, dateStr)
+	}
+
+	return dates
+}
+
 func GetNEOsByDates(dates []string) NeoWs {
-	neoWsResponsesCh := make(chan NeoWsResponse, len(dates))
+	const URL = "https://api.nasa.gov/neo/rest/v1/"
+	apiKey := os.Getenv("API_KEY")
+
+	neoWsResponsesCh := make(chan NeoWsResponse)
 
 	go func() {
 		for _, date := range dates {
-			neoWsData, err := getNeoWsByTimePeriod(date, date)
+			neoWsData, err := getNeoWsByTimePeriod(URL, date, date, apiKey)
 			util.CheckError(err)
 
 			neoWsResponsesCh <- neoWsData
@@ -25,7 +45,8 @@ func GetNEOsByDates(dates []string) NeoWs {
 		close(neoWsResponsesCh)
 	}()
 
-	neoWsResponses := make([]NeoWsResponse, len(dates))
+	neoWsResponses := make([]NeoWsResponse, 0)
+
 	for neoWsResponse := range neoWsResponsesCh {
 		neoWsResponses = append(neoWsResponses, neoWsResponse)
 	}
@@ -37,7 +58,7 @@ func GetNEOsByDates(dates []string) NeoWs {
 
 func FormatNearWsResponses(neoWsData []NeoWsResponse) NeoWs {
 	var total int
-	var neoObjectsFormated []NearEarthObjects
+	neoObjectsFormated := make([]NearEarthObjects, 0)
 
 	for _, data := range neoWsData {
 		total += data.ElementCount
@@ -51,7 +72,8 @@ func FormatNearWsResponses(neoWsData []NeoWsResponse) NeoWs {
 }
 
 func formatNearObjects(neoObjects map[string][]NearEarthObject) []NearEarthObjects {
-	var neoObjectsFormated []NearEarthObjects
+	neoObjectsFormated := make([]NearEarthObjects, 0)
+
 	for date, neoObjectsByDay := range neoObjects {
 		for _, neoObject := range neoObjectsByDay {
 			neoObj := NearEarthObjects{
@@ -63,5 +85,6 @@ func formatNearObjects(neoObjects map[string][]NearEarthObject) []NearEarthObjec
 			neoObjectsFormated = append(neoObjectsFormated, neoObj)
 		}
 	}
+
 	return neoObjectsFormated
 }
