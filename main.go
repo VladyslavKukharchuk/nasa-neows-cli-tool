@@ -8,9 +8,9 @@ import (
 func main() {
 	defer handlerPanic()
 
-	neoWsJson := NeoWs.GetNEOsByDaysAgo(7)
+	neoWsJSON := NeoWs.GetNEOsByDaysAgo(7)
 
-	fmt.Println(neoWsJson)
+	fmt.Println(neoWsJSON)
 }
 
 func handlerPanic() {

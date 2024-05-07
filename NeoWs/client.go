@@ -22,11 +22,11 @@ func getNeoWsByTimePeriod(startDate string, endDate string) (NeoWsResponse, erro
 	util.CheckError(err)
 
 	if resp.StatusCode != 200 {
-		apiError := util.ConvertFromJson[NeoWsError](bytes)
+		apiError := util.ConvertFromJSON[NeoWsError](bytes)
 		return NeoWsResponse{}, errors.New(apiError.Error.Message)
 	}
 
-	neoWsData := util.ConvertFromJson[NeoWsResponse](bytes)
+	neoWsData := util.ConvertFromJSON[NeoWsResponse](bytes)
 
 	return neoWsData, nil
 }

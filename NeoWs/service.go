@@ -6,9 +6,9 @@ func GetNEOsByDaysAgo(count int) string {
 	dates := util.GetDates(count)
 
 	neoWs := GetNEOsByDates(dates)
-	neoWsJson := util.ConvertToJSON(neoWs)
+	neoWsJSON := util.ConvertToJSON(neoWs)
 
-	return neoWsJson
+	return neoWsJSON
 }
 
 func GetNEOsByDates(dates []string) NeoWs {
