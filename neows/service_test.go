@@ -1,15 +1,18 @@
 package neows
 
 import (
+	"os"
 	"reflect"
 	"testing"
 )
 
 func TestGetNEOsByDates(t *testing.T) {
 	t.Run("success for multiple records", func(t *testing.T) {
+		const URL = "https://api.nasa.gov/neo/rest/v1/"
+		apiKey := os.Getenv("API_KEY")
 		dates := []string{"2024-05-06"}
 
-		result := GetNEOsByDates(dates)
+		result := GetNEOsByDates(URL, apiKey, dates)
 
 		expected := NeoWs{
 			Total: 23,
@@ -163,7 +166,7 @@ func TestGetNEOsByDates(t *testing.T) {
 
 func TestFormatNearWsResponses(t *testing.T) {
 	t.Run("success for single records", func(t *testing.T) {
-		neoWsData := []NeoWsResponse{
+		neoWsData := []*NeoWsResponse{
 			{
 				Links: Links{
 					Next: "http://api.nasa.gov/neo/rest/v1/feed?start_date=2024-05-07&end_date=2024-05-07&detailed=false&api_key=DEMO_KEY",
@@ -302,7 +305,7 @@ func TestFormatNearWsResponses(t *testing.T) {
 	})
 
 	t.Run("success for multiple records", func(t *testing.T) {
-		neoWsData := []NeoWsResponse{
+		neoWsData := []*NeoWsResponse{
 			{
 				Links: Links{
 					Next: "http://api.nasa.gov/neo/rest/v1/feed?start_date=2024-05-07&end_date=2024-05-07&detailed=false&api_key=DEMO_KEY",

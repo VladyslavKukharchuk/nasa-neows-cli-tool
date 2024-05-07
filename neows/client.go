@@ -1,17 +1,17 @@
 package neows
 
 import (
+	"encoding/json"
 	"errors"
 	"io"
-	"nasa-neows-cli-tool/jsonconverter"
 	"net/http"
 	"net/url"
 )
 
-func getNeoWsByTimePeriod(URL, startDate, endDate, apiKey string) (NeoWsResponse, error) {
+func getNeoWsByTimePeriod(URL, startDate, endDate, apiKey string) (*NeoWsResponse, error) {
 	baseURL, err := url.Parse(URL + "feed")
 	if err != nil {
-		return NeoWsResponse{}, err
+		return nil, err
 	}
 
 	params := url.Values{}
@@ -22,29 +22,32 @@ func getNeoWsByTimePeriod(URL, startDate, endDate, apiKey string) (NeoWsResponse
 
 	resp, err := http.Get(baseURL.String())
 	if err != nil {
-		return NeoWsResponse{}, err
+		return nil, err
 	}
 
 	defer resp.Body.Close()
 
 	bytes, err := io.ReadAll(resp.Body)
 	if err != nil {
-		return NeoWsResponse{}, err
+		return nil, err
 	}
 
 	if resp.StatusCode != http.StatusOK {
-		apiError, err := jsonconverter.FromJSON[NeoWsError](bytes)
+		var apiError NeoWsError
+
+		err := json.Unmarshal(bytes, &apiError)
 		if err != nil {
-			return NeoWsResponse{}, err
+			return nil, err
 		}
 
-		return NeoWsResponse{}, errors.New(apiError.Error.Message)
+		return nil, errors.New(apiError.Error.Message)
 	}
 
-	neoWsData, err := jsonconverter.FromJSON[NeoWsResponse](bytes)
+	var neoWsData NeoWsResponse
+	err = json.Unmarshal(bytes, &neoWsData)
 	if err != nil {
-		return NeoWsResponse{}, err
+		return nil, err
 	}
 
-	return neoWsData, nil
+	return &neoWsData, nil
 }

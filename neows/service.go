@@ -1,21 +1,20 @@
 package neows
 
 import (
-	"nasa-neows-cli-tool/jsonconverter"
-	"os"
+	"encoding/json"
 	"time"
 )
 
-func GetNEOsByDaysAgo(count int) (string, error) {
+func GetNEOsByDaysAgo(URL string, apiKey string, count int) (string, error) {
 	dates := getDates(count)
 
-	neoWs := GetNEOsByDates(dates)
-	neoWsJSON, err := jsonconverter.ToJSON(neoWs)
+	neoWs := GetNEOsByDates(URL, apiKey, dates)
+	neoWsJSON, err := json.Marshal(neoWs)
 	if err != nil {
 		return "", err
 	}
 
-	return neoWsJSON, nil
+	return string(neoWsJSON), nil
 }
 
 func getDates(days int) []string {
@@ -31,11 +30,8 @@ func getDates(days int) []string {
 	return dates
 }
 
-func GetNEOsByDates(dates []string) NeoWs {
-	const URL = "https://api.nasa.gov/neo/rest/v1/"
-	apiKey := os.Getenv("API_KEY")
-
-	neoWsResponsesCh := make(chan NeoWsResponse)
+func GetNEOsByDates(URL string, apiKey string, dates []string) NeoWs {
+	neoWsResponsesCh := make(chan *NeoWsResponse)
 
 	go func() {
 		for _, date := range dates {
@@ -50,7 +46,7 @@ func GetNEOsByDates(dates []string) NeoWs {
 		close(neoWsResponsesCh)
 	}()
 
-	neoWsResponses := make([]NeoWsResponse, 0)
+	neoWsResponses := make([]*NeoWsResponse, 0)
 
 	for neoWsResponse := range neoWsResponsesCh {
 		neoWsResponses = append(neoWsResponses, neoWsResponse)
@@ -61,7 +57,7 @@ func GetNEOsByDates(dates []string) NeoWs {
 	return neoWs
 }
 
-func FormatNearWsResponses(neoWsData []NeoWsResponse) NeoWs {
+func FormatNearWsResponses(neoWsData []*NeoWsResponse) NeoWs {
 	var total int
 	neoObjectsFormated := make([]NearEarthObjects, 0)
 
