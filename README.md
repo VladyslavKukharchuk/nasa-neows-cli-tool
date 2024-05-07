@@ -84,3 +84,12 @@ API_KEY=<your API key> go test ./...
 We need an API key to run the tests
 
 Replace `<your API key>` with your actual API key.
+
+## Run as Dev
+
+```sh
+API_KEY=<your API key> go run main.go 
+```
+We need an API key to run app
+
+Replace `<your API key>` with your actual API key.
