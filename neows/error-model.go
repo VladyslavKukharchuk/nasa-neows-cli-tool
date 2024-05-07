@@ -1,4 +1,4 @@
-package NeoWs
+package neows
 
 type NeoWsError struct {
 	Error struct {

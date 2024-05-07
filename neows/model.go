@@ -1,4 +1,4 @@
-package NeoWs
+package neows
 
 type NeoWs struct {
 	Total            int                `json:"total"`
