@@ -2,6 +2,7 @@ package neows
 
 import (
 	"encoding/json"
+	"sync"
 	"time"
 )
 
@@ -31,26 +32,25 @@ func getDates(days int) []string {
 }
 
 func GetNEOsByDates(URL string, apiKey string, dates []string) NeoWs {
-	neoWsResponsesCh := make(chan *NeoWsResponse)
+	var wg sync.WaitGroup
+	neoWsResponses := make([]*NeoWsResponse, len(dates))
 
-	go func() {
-		for _, date := range dates {
+	for i, date := range dates {
+		wg.Add(1)
+
+		go func(date string, i int) {
+			defer wg.Done()
+
 			neoWsData, err := getNeoWsByTimePeriod(URL, date, date, apiKey)
 			if err != nil {
 				panic(err)
 			}
 
-			neoWsResponsesCh <- neoWsData
-		}
-
-		close(neoWsResponsesCh)
-	}()
-
-	neoWsResponses := make([]*NeoWsResponse, 0)
-
-	for neoWsResponse := range neoWsResponsesCh {
-		neoWsResponses = append(neoWsResponses, neoWsResponse)
+			neoWsResponses[i] = neoWsData
+		}(date, i)
 	}
+
+	wg.Wait()
 
 	neoWs := FormatNearWsResponses(neoWsResponses)
 
