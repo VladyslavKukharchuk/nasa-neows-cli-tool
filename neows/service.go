@@ -32,13 +32,15 @@ func getDates(days int) []string {
 }
 
 func GetNEOsByDates(URL string, apiKey string, dates []string) NeoWs {
+	var datesCount = len(dates)
 	var wg sync.WaitGroup
-	neoWsResponses := make([]*NeoWsResponse, len(dates))
+	var mu sync.Mutex
+	var neoWsResponses = make([]*NeoWsResponse, 0, datesCount)
 
-	for i, date := range dates {
-		wg.Add(1)
+	wg.Add(datesCount)
 
-		go func(date string, i int) {
+	for _, date := range dates {
+		go func(date string) {
 			defer wg.Done()
 
 			neoWsData, err := getNeoWsByTimePeriod(URL, date, date, apiKey)
@@ -46,8 +48,10 @@ func GetNEOsByDates(URL string, apiKey string, dates []string) NeoWs {
 				panic(err)
 			}
 
-			neoWsResponses[i] = neoWsData
-		}(date, i)
+			mu.Lock()
+			neoWsResponses = append(neoWsResponses, neoWsData)
+			mu.Unlock()
+		}(date)
 	}
 
 	wg.Wait()
