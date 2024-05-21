@@ -2,6 +2,7 @@ package neows
 
 import (
 	"encoding/json"
+	"golang.org/x/sync/errgroup"
 	"sync"
 	"time"
 )
@@ -9,7 +10,11 @@ import (
 func GetNEOsByDaysAgo(URL string, apiKey string, count int) (string, error) {
 	dates := getDates(count)
 
-	neoWs := GetNEOsByDates(URL, apiKey, dates)
+	neoWs, err := GetNEOsByDates(URL, apiKey, dates)
+	if err != nil {
+		return "", err
+	}
+
 	neoWsJSON, err := json.Marshal(neoWs)
 	if err != nil {
 		return "", err
@@ -31,34 +36,36 @@ func getDates(days int) []string {
 	return dates
 }
 
-func GetNEOsByDates(URL string, apiKey string, dates []string) NeoWs {
+func GetNEOsByDates(URL string, apiKey string, dates []string) (NeoWs, error) {
 	var datesCount = len(dates)
-	var wg sync.WaitGroup
-	var mu sync.Mutex
 	var neoWsResponses = make([]*NeoWsResponse, 0, datesCount)
-
-	wg.Add(datesCount)
+	var mu sync.Mutex
+	var g = errgroup.Group{}
 
 	for _, date := range dates {
-		go func(date string) {
-			defer wg.Done()
+		date := date
 
+		g.Go(func() error {
 			neoWsData, err := getNeoWsByTimePeriod(URL, date, date, apiKey)
 			if err != nil {
-				panic(err)
+				return err
 			}
 
 			mu.Lock()
 			neoWsResponses = append(neoWsResponses, neoWsData)
 			mu.Unlock()
-		}(date)
+
+			return nil
+		})
 	}
 
-	wg.Wait()
+	if err := g.Wait(); err != nil {
+		return NeoWs{}, err
+	}
 
 	neoWs := FormatNearWsResponses(neoWsResponses)
 
-	return neoWs
+	return neoWs, nil
 }
 
 func FormatNearWsResponses(neoWsData []*NeoWsResponse) NeoWs {
