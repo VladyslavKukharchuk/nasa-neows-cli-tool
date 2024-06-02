@@ -31,6 +31,7 @@ This tool provides a convenient way for users to access essential information ab
 }
 ```
 
+
 ## Installation
 
 To install the NASA NEOs CLI Tool, follow these steps:
@@ -49,47 +50,85 @@ cd nasa-neows-cli-tool
 ```
 
 
-### Building the Docker Image
+### Using Makefile Commands
+
+The project includes a Makefile to streamline the build, run, and test processes. 
+Below are the available commands.
+
+### Building
+
+Build the Docker Image and Run the Container
 
 ```sh
-docker build --tag nasa-neows-cli-tool .
-```
-This command utilizes your Dockerfile and all resources in the current directory to build the image.
-Be sure to wait for this process to complete.
-
-
-### Run the Docker Container
-
-```sh
-docker run --name nasa-neows-cli-tool -e API_KEY=<your API key> nasa-neows-cli-tool
+make build API_KEY=<your API key>
 ```
 
+This command builds the Docker image and runs the Docker container. 
 Replace `<your API key>` with your actual API key.
 
 
 ## Usage
 
-### Start container to get data about near-Earth objects (NEOs) detected within the last 7 days
+This command starts the Docker container to get data about 
+near-Earth objects (NEOs) detected within the last 7 days.
 
 ```sh
-docker start -a nasa-neows-cli-tool
+make run
 ```
 
 
 ## Run Tests
 
 ```sh
-API_KEY=<your API key> go test ./...
+make test API_KEY=<your API key>
 ```
-We need an API key to run the tests
 
+We need an API key to run the tests
 Replace `<your API key>` with your actual API key.
 
-## Run as Dev
+
+## Remove Docker Container and Image
 
 ```sh
-API_KEY=<your API key> go run main.go 
+make remove
 ```
-We need an API key to run app
 
+
+## Dev
+
+### Run in Development Mode
+
+```sh
+make run-dev API_KEY=<your API key>
+```
+
+We need an API key to run app.
 Replace `<your API key>` with your actual API key.
+
+
+### Build the Binary
+
+```sh
+make build-binary
+```
+
+This command builds the Go binary.
+
+
+### Run the Binary
+
+```sh
+make run-binary API_KEY=<your API key>
+```
+
+We need an API key to run the binary.
+Replace `<your API key>` with your actual API key.
+
+
+### Remove the Binary
+
+```sh
+make remove-binary
+```
+
+This command removes the built Go binary.
