@@ -37,8 +37,7 @@ func getDates(days int) []string {
 }
 
 func GetNEOsByDates(URL string, apiKey string, dates []string) (NeoWs, error) {
-	var datesCount = len(dates)
-	var neoWsResponses = make([]*NeoWsResponse, 0, datesCount)
+	var neoWsResponses = make([]*NeoWsResponse, 0, len(dates))
 	var mu sync.Mutex
 	var g = errgroup.Group{}
 
