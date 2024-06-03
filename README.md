@@ -77,7 +77,9 @@ make run
 ```
 
 
-## Run Tests
+## Tests
+
+### Run tests
 
 ```sh
 make test API_KEY=<your API key>
@@ -85,6 +87,18 @@ make test API_KEY=<your API key>
 
 We need an API key to run the tests
 Replace `<your API key>` with your actual API key.
+
+### Show test cover 
+
+```sh
+make test-cover-cli
+```
+
+### Show test cover
+
+```sh
+make test-cover-html
+```
 
 
 ## Remove Docker Container and Image

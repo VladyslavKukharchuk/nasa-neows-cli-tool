@@ -3,166 +3,205 @@ package neows
 import (
 	"github.com/stretchr/testify/assert"
 	"os"
-	"reflect"
 	"testing"
 )
 
 func TestGetNEOsByDates(t *testing.T) {
-	t.Run("success for multiple records", func(t *testing.T) {
-		const URL = "https://api.nasa.gov/neo/rest/v1/"
-		apiKey := os.Getenv("API_KEY")
-		dates := []string{"2024-05-06"}
+	type args struct {
+		URL    string
+		apiKey string
+		dates  []string
+	}
 
-		result, _ := GetNEOsByDates(URL, apiKey, dates)
-
-		expected := NeoWs{
-			Total: 23,
-			NearEarthObjects: []NearEarthObjects{
-				{
-					Date:                           "2024-05-06",
-					ID:                             "2474425",
-					Name:                           "474425 (2002 YF4)",
-					IsPotentiallyHazardousAsteroid: false,
-				},
-				{
-					Date:                           "2024-05-06",
-					ID:                             "3277400",
-					Name:                           "(2005 HN3)",
-					IsPotentiallyHazardousAsteroid: false,
-				},
-				{
-					Date:                           "2024-05-06",
-					ID:                             "3607741",
-					Name:                           "(2012 QG8)",
-					IsPotentiallyHazardousAsteroid: false,
-				},
-				{
-					Date:                           "2024-05-06",
-					ID:                             "3728903",
-					Name:                           "(2015 TK)",
-					IsPotentiallyHazardousAsteroid: false,
-				},
-				{
-					Date:                           "2024-05-06",
-					ID:                             "3745998",
-					Name:                           "(2016 EN84)",
-					IsPotentiallyHazardousAsteroid: false,
-				},
-				{
-					Date:                           "2024-05-06",
-					ID:                             "3837800",
-					Name:                           "(2019 AP9)",
-					IsPotentiallyHazardousAsteroid: false,
-				},
-				{
-					Date:                           "2024-05-06",
-					ID:                             "54055121",
-					Name:                           "(2020 TS3)",
-					IsPotentiallyHazardousAsteroid: false,
-				},
-				{
-					Date:                           "2024-05-06",
-					ID:                             "54096684",
-					Name:                           "(2020 WN5)",
-					IsPotentiallyHazardousAsteroid: false,
-				},
-				{
-					Date:                           "2024-05-06",
-					ID:                             "54106347",
-					Name:                           "(2021 BO1)",
-					IsPotentiallyHazardousAsteroid: false,
-				},
-				{
-					Date:                           "2024-05-06",
-					ID:                             "54123628",
-					Name:                           "(2021 DW1)",
-					IsPotentiallyHazardousAsteroid: false,
-				},
-				{
-					Date:                           "2024-05-06",
-					ID:                             "2612970",
-					Name:                           "612970 (2005 HN3)",
-					IsPotentiallyHazardousAsteroid: false,
-				},
-				{
-					Date:                           "2024-05-06",
-					ID:                             "54296744",
-					Name:                           "(2022 QA3)",
-					IsPotentiallyHazardousAsteroid: false,
-				},
-				{
-					Date:                           "2024-05-06",
-					ID:                             "54339760",
-					Name:                           "(2023 BW)",
-					IsPotentiallyHazardousAsteroid: false,
-				},
-				{
-					Date:                           "2024-05-06",
-					ID:                             "54357784",
-					Name:                           "(2023 JV)",
-					IsPotentiallyHazardousAsteroid: false,
-				},
-				{
-					Date:                           "2024-05-06",
-					ID:                             "54357980",
-					Name:                           "(2023 JL1)",
-					IsPotentiallyHazardousAsteroid: false,
-				},
-				{
-					Date:                           "2024-05-06",
-					ID:                             "54402140",
-					Name:                           "(2023 VH)",
-					IsPotentiallyHazardousAsteroid: false,
-				},
-				{
-					Date:                           "2024-05-06",
-					ID:                             "54432968",
-					Name:                           "(2024 GE1)",
-					IsPotentiallyHazardousAsteroid: false,
-				},
-				{
-					Date:                           "2024-05-06",
-					ID:                             "54438668",
-					Name:                           "(2024 HE2)",
-					IsPotentiallyHazardousAsteroid: false,
-				},
-				{
-					Date:                           "2024-05-06",
-					ID:                             "54438672",
-					Name:                           "(2024 HL2)",
-					IsPotentiallyHazardousAsteroid: false,
-				},
-				{
-					Date:                           "2024-05-06",
-					ID:                             "54438675",
-					Name:                           "(2024 HM2)",
-					IsPotentiallyHazardousAsteroid: false,
-				},
-				{
-					Date:                           "2024-05-06",
-					ID:                             "54439316",
-					Name:                           "(2024 HY2)",
-					IsPotentiallyHazardousAsteroid: false,
-				},
-				{
-					Date:                           "2024-05-06",
-					ID:                             "54439322",
-					Name:                           "(2024 JF)",
-					IsPotentiallyHazardousAsteroid: false,
-				},
-				{
-					Date:                           "2024-05-06",
-					ID:                             "54439420",
-					Name:                           "(2024 JQ)",
-					IsPotentiallyHazardousAsteroid: false,
+	tests := []struct {
+		name     string
+		args     args
+		expected NeoWs
+	}{
+		{
+			name: "success for single record",
+			args: args{
+				URL:    "https://api.nasa.gov/neo/rest/v1/",
+				apiKey: os.Getenv("API_KEY"),
+				dates:  []string{"2024-05-06"},
+			},
+			expected: NeoWs{
+				Total: 27,
+				NearEarthObjects: []NearEarthObjects{
+					{
+						Date:                           "2024-05-06",
+						ID:                             "2474425",
+						Name:                           "474425 (2002 YF4)",
+						IsPotentiallyHazardousAsteroid: false,
+					},
+					{
+						Date:                           "2024-05-06",
+						ID:                             "3277400",
+						Name:                           "(2005 HN3)",
+						IsPotentiallyHazardousAsteroid: false,
+					},
+					{
+						Date:                           "2024-05-06",
+						ID:                             "3607741",
+						Name:                           "(2012 QG8)",
+						IsPotentiallyHazardousAsteroid: false,
+					},
+					{
+						Date:                           "2024-05-06",
+						ID:                             "3728903",
+						Name:                           "(2015 TK)",
+						IsPotentiallyHazardousAsteroid: false,
+					},
+					{
+						Date:                           "2024-05-06",
+						ID:                             "3745998",
+						Name:                           "(2016 EN84)",
+						IsPotentiallyHazardousAsteroid: false,
+					},
+					{
+						Date:                           "2024-05-06",
+						ID:                             "3837800",
+						Name:                           "(2019 AP9)",
+						IsPotentiallyHazardousAsteroid: false,
+					},
+					{
+						Date:                           "2024-05-06",
+						ID:                             "54055121",
+						Name:                           "(2020 TS3)",
+						IsPotentiallyHazardousAsteroid: false,
+					},
+					{
+						Date:                           "2024-05-06",
+						ID:                             "54096684",
+						Name:                           "(2020 WN5)",
+						IsPotentiallyHazardousAsteroid: false,
+					},
+					{
+						Date:                           "2024-05-06",
+						ID:                             "54106347",
+						Name:                           "(2021 BO1)",
+						IsPotentiallyHazardousAsteroid: false,
+					},
+					{
+						Date:                           "2024-05-06",
+						ID:                             "54123628",
+						Name:                           "(2021 DW1)",
+						IsPotentiallyHazardousAsteroid: false,
+					},
+					{
+						Date:                           "2024-05-06",
+						ID:                             "2612970",
+						Name:                           "612970 (2005 HN3)",
+						IsPotentiallyHazardousAsteroid: false,
+					},
+					{
+						Date:                           "2024-05-06",
+						ID:                             "54296744",
+						Name:                           "(2022 QA3)",
+						IsPotentiallyHazardousAsteroid: false,
+					},
+					{
+						Date:                           "2024-05-06",
+						ID:                             "54339760",
+						Name:                           "(2023 BW)",
+						IsPotentiallyHazardousAsteroid: false,
+					},
+					{
+						Date:                           "2024-05-06",
+						ID:                             "54357784",
+						Name:                           "(2023 JV)",
+						IsPotentiallyHazardousAsteroid: false,
+					},
+					{
+						Date:                           "2024-05-06",
+						ID:                             "54357980",
+						Name:                           "(2023 JL1)",
+						IsPotentiallyHazardousAsteroid: false,
+					},
+					{
+						Date:                           "2024-05-06",
+						ID:                             "54402140",
+						Name:                           "(2023 VH)",
+						IsPotentiallyHazardousAsteroid: false,
+					},
+					{
+						Date:                           "2024-05-06",
+						ID:                             "54432968",
+						Name:                           "(2024 GE1)",
+						IsPotentiallyHazardousAsteroid: false,
+					},
+					{
+						Date:                           "2024-05-06",
+						ID:                             "54438668",
+						Name:                           "(2024 HE2)",
+						IsPotentiallyHazardousAsteroid: false,
+					},
+					{
+						Date:                           "2024-05-06",
+						ID:                             "54438672",
+						Name:                           "(2024 HL2)",
+						IsPotentiallyHazardousAsteroid: false,
+					},
+					{
+						Date:                           "2024-05-06",
+						ID:                             "54438675",
+						Name:                           "(2024 HM2)",
+						IsPotentiallyHazardousAsteroid: false,
+					},
+					{
+						Date:                           "2024-05-06",
+						ID:                             "54439316",
+						Name:                           "(2024 HY2)",
+						IsPotentiallyHazardousAsteroid: false,
+					},
+					{
+						Date:                           "2024-05-06",
+						ID:                             "54439322",
+						Name:                           "(2024 JF)",
+						IsPotentiallyHazardousAsteroid: false,
+					},
+					{
+						Date:                           "2024-05-06",
+						ID:                             "54439420",
+						Name:                           "(2024 JQ)",
+						IsPotentiallyHazardousAsteroid: false,
+					},
+					{
+						Date:                           "2024-05-06",
+						ID:                             "54440000",
+						Name:                           "(2024 JQ2)",
+						IsPotentiallyHazardousAsteroid: false,
+					},
+					{
+						Date:                           "2024-05-06",
+						ID:                             "54440001",
+						Name:                           "(2024 JY2)",
+						IsPotentiallyHazardousAsteroid: false,
+					},
+					{
+						Date:                           "2024-05-06",
+						ID:                             "54440321",
+						Name:                           "(2024 JP3)",
+						IsPotentiallyHazardousAsteroid: false,
+					},
+					{
+						Date:                           "2024-05-06",
+						ID:                             "54445202",
+						Name:                           "(2024 KD1)",
+						IsPotentiallyHazardousAsteroid: false,
+					},
 				},
 			},
-		}
+		},
+	}
 
-		if !reflect.DeepEqual(result, expected) {
-			t.Errorf("unexpected result. Expected: %+v, Got: %+v", expected, result)
-		}
-	})
+	for _, test := range tests {
+		t.Run(test.name, func(t *testing.T) {
+			result, _ := GetNEOsByDates(test.args.URL, test.args.apiKey, test.args.dates)
+
+			assert.Equal(t, test.expected, result)
+		})
+	}
 }
 
 func TestFormatNearWsResponses(t *testing.T) {
@@ -172,7 +211,7 @@ func TestFormatNearWsResponses(t *testing.T) {
 		expected NeoWs
 	}{
 		{
-			name: "success for single records",
+			name: "success for single record",
 			args: []*NeoWsResponse{
 				{
 					Links: Links{

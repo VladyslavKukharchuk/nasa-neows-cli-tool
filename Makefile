@@ -12,7 +12,13 @@ run:
 	docker start -a $(DOCKER_CONTAINER)
 
 test:
-	API_KEY=$(API_KEY) go test ./...
+	API_KEY=$(API_KEY) go test ./... -coverprofile=coverage.out
+
+test-cover-cli:
+	go tool cover -func=coverage.out
+
+test-cover-html:
+	go tool cover -html=coverage.out
 
 remove:
 	docker rm $(DOCKER_CONTAINER)
