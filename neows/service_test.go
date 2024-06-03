@@ -1,6 +1,7 @@
 package neows
 
 import (
+	"github.com/stretchr/testify/assert"
 	"os"
 	"reflect"
 	"testing"
@@ -12,7 +13,7 @@ func TestGetNEOsByDates(t *testing.T) {
 		apiKey := os.Getenv("API_KEY")
 		dates := []string{"2024-05-06"}
 
-		result := GetNEOsByDates(URL, apiKey, dates)
+		result, _ := GetNEOsByDates(URL, apiKey, dates)
 
 		expected := NeoWs{
 			Total: 23,
@@ -165,458 +166,459 @@ func TestGetNEOsByDates(t *testing.T) {
 }
 
 func TestFormatNearWsResponses(t *testing.T) {
-	t.Run("success for single records", func(t *testing.T) {
-		neoWsData := []*NeoWsResponse{
-			{
-				Links: Links{
-					Next: "http://api.nasa.gov/neo/rest/v1/feed?start_date=2024-05-07&end_date=2024-05-07&detailed=false&api_key=DEMO_KEY",
-					Prev: "http://api.nasa.gov/neo/rest/v1/feed?start_date=2024-05-05&end_date=2024-05-05&detailed=false&api_key=DEMO_KEY",
-					Self: "http://api.nasa.gov/neo/rest/v1/feed?start_date=2024-05-06&end_date=2024-05-06&detailed=false&api_key=DEMO_KEY",
-				},
-				ElementCount: 2,
-				NearEarthObjects: map[string][]NearEarthObject{
-					"2024-05-06": {
-						{
-							Links: NearEarthObjectLinks{
-								Self: "http://api.nasa.gov/neo/rest/v1/neo/2474425?api_key=DEMO_KEY",
-							},
-							ID:                 "2474425",
-							NeoReferenceID:     "2474425",
-							Name:               "474425 (2002 YF4)",
-							NasaJPLURL:         "https://ssd.jpl.nasa.gov/tools/sbdb_lookup.html#/?sstr=2474425",
-							AbsoluteMagnitudeH: 18.81,
-							EstimatedDiameter: EstimatedDiameter{
-								Kilometers: Kilometers{
-									EstimatedDiameterMin: 0.4597851883,
-									EstimatedDiameterMax: 1.028110936,
+	tests := []struct {
+		name     string
+		args     []*NeoWsResponse
+		expected NeoWs
+	}{
+		{
+			name: "success for single records",
+			args: []*NeoWsResponse{
+				{
+					Links: Links{
+						Next: "http://api.nasa.gov/neo/rest/v1/feed?start_date=2024-05-07&end_date=2024-05-07&detailed=false&api_key=DEMO_KEY",
+						Prev: "http://api.nasa.gov/neo/rest/v1/feed?start_date=2024-05-05&end_date=2024-05-05&detailed=false&api_key=DEMO_KEY",
+						Self: "http://api.nasa.gov/neo/rest/v1/feed?start_date=2024-05-06&end_date=2024-05-06&detailed=false&api_key=DEMO_KEY",
+					},
+					ElementCount: 2,
+					NearEarthObjects: map[string][]NearEarthObject{
+						"2024-05-06": {
+							{
+								Links: NearEarthObjectLinks{
+									Self: "http://api.nasa.gov/neo/rest/v1/neo/2474425?api_key=DEMO_KEY",
 								},
-								Meters: Meters{
-									EstimatedDiameterMin: 459.7851882794,
-									EstimatedDiameterMax: 1028.1109360402,
-								},
-								Miles: Miles{
-									EstimatedDiameterMin: 0.2856971822,
-									EstimatedDiameterMax: 0.6388383204,
-								},
-								Feet: Feet{
-									EstimatedDiameterMin: 1508.4816371145,
-									EstimatedDiameterMax: 3373.0674833982,
-								},
-							},
-							IsPotentiallyHazardousAsteroid: false,
-							CloseApproachData: []CloseApproachData{
-								{
-									CloseApproachDate:      "2024-05-06",
-									CloseApproachDateFull:  "2024-May-06 14:12",
-									EpochDateCloseApproach: 1715004720000,
-									RelativeVelocity: RelativeVelocity{
-										KilometersPerSecond: "16.8705110197",
-										KilometersPerHour:   "60733.8396709463",
-										MilesPerHour:        "37737.6460999833",
+								ID:                 "2474425",
+								NeoReferenceID:     "2474425",
+								Name:               "474425 (2002 YF4)",
+								NasaJPLURL:         "https://ssd.jpl.nasa.gov/tools/sbdb_lookup.html#/?sstr=2474425",
+								AbsoluteMagnitudeH: 18.81,
+								EstimatedDiameter: EstimatedDiameter{
+									Kilometers: Kilometers{
+										EstimatedDiameterMin: 0.4597851883,
+										EstimatedDiameterMax: 1.028110936,
 									},
-									MissDistance: MissDistance{
-										Astronomical: "0.4369597061",
-										Lunar:        "169.9773256729",
-										Kilometers:   "65368241.308386007",
-										Miles:        "40617941.6700486166",
+									Meters: Meters{
+										EstimatedDiameterMin: 459.7851882794,
+										EstimatedDiameterMax: 1028.1109360402,
 									},
-									OrbitingBody: "Earth",
-								},
-							},
-							IsSentryObject: false,
-						},
-						{
-							Links: NearEarthObjectLinks{
-								Self: "http://api.nasa.gov/neo/rest/v1/neo/3277400?api_key=DEMO_KEY",
-							},
-							ID:                 "3277400",
-							NeoReferenceID:     "3277400",
-							Name:               "(2005 HN3)",
-							NasaJPLURL:         "https://ssd.jpl.nasa.gov/tools/sbdb_lookup.html#/?sstr=3277400",
-							AbsoluteMagnitudeH: 18.81,
-							EstimatedDiameter: EstimatedDiameter{
-								Kilometers: Kilometers{
-									EstimatedDiameterMin: 0.4597851883,
-									EstimatedDiameterMax: 1.028110936,
-								},
-								Meters: Meters{
-									EstimatedDiameterMin: 459.7851882794,
-									EstimatedDiameterMax: 1028.1109360402,
-								},
-								Miles: Miles{
-									EstimatedDiameterMin: 0.2856971822,
-									EstimatedDiameterMax: 0.6388383204,
-								},
-								Feet: Feet{
-									EstimatedDiameterMin: 1508.4816371145,
-									EstimatedDiameterMax: 3373.0674833982,
-								},
-							},
-							IsPotentiallyHazardousAsteroid: true,
-							CloseApproachData: []CloseApproachData{
-								{
-									CloseApproachDate:      "2024-05-06",
-									CloseApproachDateFull:  "2024-May-06 14:12",
-									EpochDateCloseApproach: 1715004720000,
-									RelativeVelocity: RelativeVelocity{
-										KilometersPerSecond: "16.8705110197",
-										KilometersPerHour:   "60733.8396709463",
-										MilesPerHour:        "37737.6460999833",
+									Miles: Miles{
+										EstimatedDiameterMin: 0.2856971822,
+										EstimatedDiameterMax: 0.6388383204,
 									},
-									MissDistance: MissDistance{
-										Astronomical: "0.4369597061",
-										Lunar:        "169.9773256729",
-										Kilometers:   "65368241.308386007",
-										Miles:        "40617941.6700486166",
+									Feet: Feet{
+										EstimatedDiameterMin: 1508.4816371145,
+										EstimatedDiameterMax: 3373.0674833982,
 									},
-									OrbitingBody: "Earth",
 								},
+								IsPotentiallyHazardousAsteroid: false,
+								CloseApproachData: []CloseApproachData{
+									{
+										CloseApproachDate:      "2024-05-06",
+										CloseApproachDateFull:  "2024-May-06 14:12",
+										EpochDateCloseApproach: 1715004720000,
+										RelativeVelocity: RelativeVelocity{
+											KilometersPerSecond: "16.8705110197",
+											KilometersPerHour:   "60733.8396709463",
+											MilesPerHour:        "37737.6460999833",
+										},
+										MissDistance: MissDistance{
+											Astronomical: "0.4369597061",
+											Lunar:        "169.9773256729",
+											Kilometers:   "65368241.308386007",
+											Miles:        "40617941.6700486166",
+										},
+										OrbitingBody: "Earth",
+									},
+								},
+								IsSentryObject: false,
 							},
-							IsSentryObject: false,
+							{
+								Links: NearEarthObjectLinks{
+									Self: "http://api.nasa.gov/neo/rest/v1/neo/3277400?api_key=DEMO_KEY",
+								},
+								ID:                 "3277400",
+								NeoReferenceID:     "3277400",
+								Name:               "(2005 HN3)",
+								NasaJPLURL:         "https://ssd.jpl.nasa.gov/tools/sbdb_lookup.html#/?sstr=3277400",
+								AbsoluteMagnitudeH: 18.81,
+								EstimatedDiameter: EstimatedDiameter{
+									Kilometers: Kilometers{
+										EstimatedDiameterMin: 0.4597851883,
+										EstimatedDiameterMax: 1.028110936,
+									},
+									Meters: Meters{
+										EstimatedDiameterMin: 459.7851882794,
+										EstimatedDiameterMax: 1028.1109360402,
+									},
+									Miles: Miles{
+										EstimatedDiameterMin: 0.2856971822,
+										EstimatedDiameterMax: 0.6388383204,
+									},
+									Feet: Feet{
+										EstimatedDiameterMin: 1508.4816371145,
+										EstimatedDiameterMax: 3373.0674833982,
+									},
+								},
+								IsPotentiallyHazardousAsteroid: true,
+								CloseApproachData: []CloseApproachData{
+									{
+										CloseApproachDate:      "2024-05-06",
+										CloseApproachDateFull:  "2024-May-06 14:12",
+										EpochDateCloseApproach: 1715004720000,
+										RelativeVelocity: RelativeVelocity{
+											KilometersPerSecond: "16.8705110197",
+											KilometersPerHour:   "60733.8396709463",
+											MilesPerHour:        "37737.6460999833",
+										},
+										MissDistance: MissDistance{
+											Astronomical: "0.4369597061",
+											Lunar:        "169.9773256729",
+											Kilometers:   "65368241.308386007",
+											Miles:        "40617941.6700486166",
+										},
+										OrbitingBody: "Earth",
+									},
+								},
+								IsSentryObject: false,
+							},
 						},
 					},
 				},
 			},
-		}
-
-		result := FormatNearWsResponses(neoWsData)
-
-		expected := NeoWs{
-			Total: 2,
-			NearEarthObjects: []NearEarthObjects{
-				{
-					Date:                           "2024-05-06",
-					ID:                             "2474425",
-					Name:                           "474425 (2002 YF4)",
-					IsPotentiallyHazardousAsteroid: false,
-				},
-				{
-					Date:                           "2024-05-06",
-					ID:                             "3277400",
-					Name:                           "(2005 HN3)",
-					IsPotentiallyHazardousAsteroid: true,
+			expected: NeoWs{
+				Total: 2,
+				NearEarthObjects: []NearEarthObjects{
+					{
+						Date:                           "2024-05-06",
+						ID:                             "2474425",
+						Name:                           "474425 (2002 YF4)",
+						IsPotentiallyHazardousAsteroid: false,
+					},
+					{
+						Date:                           "2024-05-06",
+						ID:                             "3277400",
+						Name:                           "(2005 HN3)",
+						IsPotentiallyHazardousAsteroid: true,
+					},
 				},
 			},
-		}
-
-		if !reflect.DeepEqual(result, expected) {
-			t.Errorf("unexpected result. Expected: %+v, Got: %+v", expected, result)
-		}
-	})
-
-	t.Run("success for multiple records", func(t *testing.T) {
-		neoWsData := []*NeoWsResponse{
-			{
-				Links: Links{
-					Next: "http://api.nasa.gov/neo/rest/v1/feed?start_date=2024-05-07&end_date=2024-05-07&detailed=false&api_key=DEMO_KEY",
-					Prev: "http://api.nasa.gov/neo/rest/v1/feed?start_date=2024-05-05&end_date=2024-05-05&detailed=false&api_key=DEMO_KEY",
-					Self: "http://api.nasa.gov/neo/rest/v1/feed?start_date=2024-05-06&end_date=2024-05-06&detailed=false&api_key=DEMO_KEY",
-				},
-				ElementCount: 2,
-				NearEarthObjects: map[string][]NearEarthObject{
-					"2024-05-06": {
-						{
-							Links: NearEarthObjectLinks{
-								Self: "http://api.nasa.gov/neo/rest/v1/neo/2474425?api_key=DEMO_KEY",
-							},
-							ID:                 "2474425",
-							NeoReferenceID:     "2474425",
-							Name:               "474425 (2002 YF4)",
-							NasaJPLURL:         "https://ssd.jpl.nasa.gov/tools/sbdb_lookup.html#/?sstr=2474425",
-							AbsoluteMagnitudeH: 18.81,
-							EstimatedDiameter: EstimatedDiameter{
-								Kilometers: Kilometers{
-									EstimatedDiameterMin: 0.4597851883,
-									EstimatedDiameterMax: 1.028110936,
+		},
+		{
+			name: "success for multiple records",
+			args: []*NeoWsResponse{
+				{
+					Links: Links{
+						Next: "http://api.nasa.gov/neo/rest/v1/feed?start_date=2024-05-07&end_date=2024-05-07&detailed=false&api_key=DEMO_KEY",
+						Prev: "http://api.nasa.gov/neo/rest/v1/feed?start_date=2024-05-05&end_date=2024-05-05&detailed=false&api_key=DEMO_KEY",
+						Self: "http://api.nasa.gov/neo/rest/v1/feed?start_date=2024-05-06&end_date=2024-05-06&detailed=false&api_key=DEMO_KEY",
+					},
+					ElementCount: 2,
+					NearEarthObjects: map[string][]NearEarthObject{
+						"2024-05-06": {
+							{
+								Links: NearEarthObjectLinks{
+									Self: "http://api.nasa.gov/neo/rest/v1/neo/2474425?api_key=DEMO_KEY",
 								},
-								Meters: Meters{
-									EstimatedDiameterMin: 459.7851882794,
-									EstimatedDiameterMax: 1028.1109360402,
-								},
-								Miles: Miles{
-									EstimatedDiameterMin: 0.2856971822,
-									EstimatedDiameterMax: 0.6388383204,
-								},
-								Feet: Feet{
-									EstimatedDiameterMin: 1508.4816371145,
-									EstimatedDiameterMax: 3373.0674833982,
-								},
-							},
-							IsPotentiallyHazardousAsteroid: false,
-							CloseApproachData: []CloseApproachData{
-								{
-									CloseApproachDate:      "2024-05-06",
-									CloseApproachDateFull:  "2024-May-06 14:12",
-									EpochDateCloseApproach: 1715004720000,
-									RelativeVelocity: RelativeVelocity{
-										KilometersPerSecond: "16.8705110197",
-										KilometersPerHour:   "60733.8396709463",
-										MilesPerHour:        "37737.6460999833",
+								ID:                 "2474425",
+								NeoReferenceID:     "2474425",
+								Name:               "474425 (2002 YF4)",
+								NasaJPLURL:         "https://ssd.jpl.nasa.gov/tools/sbdb_lookup.html#/?sstr=2474425",
+								AbsoluteMagnitudeH: 18.81,
+								EstimatedDiameter: EstimatedDiameter{
+									Kilometers: Kilometers{
+										EstimatedDiameterMin: 0.4597851883,
+										EstimatedDiameterMax: 1.028110936,
 									},
-									MissDistance: MissDistance{
-										Astronomical: "0.4369597061",
-										Lunar:        "169.9773256729",
-										Kilometers:   "65368241.308386007",
-										Miles:        "40617941.6700486166",
+									Meters: Meters{
+										EstimatedDiameterMin: 459.7851882794,
+										EstimatedDiameterMax: 1028.1109360402,
 									},
-									OrbitingBody: "Earth",
+									Miles: Miles{
+										EstimatedDiameterMin: 0.2856971822,
+										EstimatedDiameterMax: 0.6388383204,
+									},
+									Feet: Feet{
+										EstimatedDiameterMin: 1508.4816371145,
+										EstimatedDiameterMax: 3373.0674833982,
+									},
 								},
+								IsPotentiallyHazardousAsteroid: false,
+								CloseApproachData: []CloseApproachData{
+									{
+										CloseApproachDate:      "2024-05-06",
+										CloseApproachDateFull:  "2024-May-06 14:12",
+										EpochDateCloseApproach: 1715004720000,
+										RelativeVelocity: RelativeVelocity{
+											KilometersPerSecond: "16.8705110197",
+											KilometersPerHour:   "60733.8396709463",
+											MilesPerHour:        "37737.6460999833",
+										},
+										MissDistance: MissDistance{
+											Astronomical: "0.4369597061",
+											Lunar:        "169.9773256729",
+											Kilometers:   "65368241.308386007",
+											Miles:        "40617941.6700486166",
+										},
+										OrbitingBody: "Earth",
+									},
+								},
+								IsSentryObject: false,
 							},
-							IsSentryObject: false,
+							{
+								Links: NearEarthObjectLinks{
+									Self: "http://api.nasa.gov/neo/rest/v1/neo/3277400?api_key=DEMO_KEY",
+								},
+								ID:                 "3277400",
+								NeoReferenceID:     "3277400",
+								Name:               "(2005 HN3)",
+								NasaJPLURL:         "https://ssd.jpl.nasa.gov/tools/sbdb_lookup.html#/?sstr=3277400",
+								AbsoluteMagnitudeH: 18.81,
+								EstimatedDiameter: EstimatedDiameter{
+									Kilometers: Kilometers{
+										EstimatedDiameterMin: 0.4597851883,
+										EstimatedDiameterMax: 1.028110936,
+									},
+									Meters: Meters{
+										EstimatedDiameterMin: 459.7851882794,
+										EstimatedDiameterMax: 1028.1109360402,
+									},
+									Miles: Miles{
+										EstimatedDiameterMin: 0.2856971822,
+										EstimatedDiameterMax: 0.6388383204,
+									},
+									Feet: Feet{
+										EstimatedDiameterMin: 1508.4816371145,
+										EstimatedDiameterMax: 3373.0674833982,
+									},
+								},
+								IsPotentiallyHazardousAsteroid: true,
+								CloseApproachData: []CloseApproachData{
+									{
+										CloseApproachDate:      "2024-05-06",
+										CloseApproachDateFull:  "2024-May-06 14:12",
+										EpochDateCloseApproach: 1715004720000,
+										RelativeVelocity: RelativeVelocity{
+											KilometersPerSecond: "16.8705110197",
+											KilometersPerHour:   "60733.8396709463",
+											MilesPerHour:        "37737.6460999833",
+										},
+										MissDistance: MissDistance{
+											Astronomical: "0.4369597061",
+											Lunar:        "169.9773256729",
+											Kilometers:   "65368241.308386007",
+											Miles:        "40617941.6700486166",
+										},
+										OrbitingBody: "Earth",
+									},
+								},
+								IsSentryObject: false,
+							},
 						},
-						{
-							Links: NearEarthObjectLinks{
-								Self: "http://api.nasa.gov/neo/rest/v1/neo/3277400?api_key=DEMO_KEY",
-							},
-							ID:                 "3277400",
-							NeoReferenceID:     "3277400",
-							Name:               "(2005 HN3)",
-							NasaJPLURL:         "https://ssd.jpl.nasa.gov/tools/sbdb_lookup.html#/?sstr=3277400",
-							AbsoluteMagnitudeH: 18.81,
-							EstimatedDiameter: EstimatedDiameter{
-								Kilometers: Kilometers{
-									EstimatedDiameterMin: 0.4597851883,
-									EstimatedDiameterMax: 1.028110936,
+					},
+				},
+				{
+					Links: Links{
+						Next: "http://api.nasa.gov/neo/rest/v1/feed?start_date=2024-05-08&end_date=2024-05-08&detailed=false&api_key=DEMO_KEY",
+						Prev: "http://api.nasa.gov/neo/rest/v1/feed?start_date=2024-05-08&end_date=2024-05-08&detailed=false&api_key=DEMO_KEY",
+						Self: "http://api.nasa.gov/neo/rest/v1/feed?start_date=2024-05-07&end_date=2024-05-07&detailed=false&api_key=DEMO_KEY",
+					},
+					ElementCount: 3,
+					NearEarthObjects: map[string][]NearEarthObject{
+						"2024-05-07": {
+							{
+								Links: NearEarthObjectLinks{
+									Self: "http://api.nasa.gov/neo/rest/v1/neo/2481457?api_key=DEMO_KEY",
 								},
-								Meters: Meters{
-									EstimatedDiameterMin: 459.7851882794,
-									EstimatedDiameterMax: 1028.1109360402,
-								},
-								Miles: Miles{
-									EstimatedDiameterMin: 0.2856971822,
-									EstimatedDiameterMax: 0.6388383204,
-								},
-								Feet: Feet{
-									EstimatedDiameterMin: 1508.4816371145,
-									EstimatedDiameterMax: 3373.0674833982,
-								},
-							},
-							IsPotentiallyHazardousAsteroid: true,
-							CloseApproachData: []CloseApproachData{
-								{
-									CloseApproachDate:      "2024-05-06",
-									CloseApproachDateFull:  "2024-May-06 14:12",
-									EpochDateCloseApproach: 1715004720000,
-									RelativeVelocity: RelativeVelocity{
-										KilometersPerSecond: "16.8705110197",
-										KilometersPerHour:   "60733.8396709463",
-										MilesPerHour:        "37737.6460999833",
+								ID:                 "2481457",
+								NeoReferenceID:     "2481457",
+								Name:               "481457 (2006 XD2)",
+								NasaJPLURL:         "https://ssd.jpl.nasa.gov/tools/sbdb_lookup.html#/?sstr=2481457",
+								AbsoluteMagnitudeH: 18.81,
+								EstimatedDiameter: EstimatedDiameter{
+									Kilometers: Kilometers{
+										EstimatedDiameterMin: 0.4597851883,
+										EstimatedDiameterMax: 1.028110936,
 									},
-									MissDistance: MissDistance{
-										Astronomical: "0.4369597061",
-										Lunar:        "169.9773256729",
-										Kilometers:   "65368241.308386007",
-										Miles:        "40617941.6700486166",
+									Meters: Meters{
+										EstimatedDiameterMin: 459.7851882794,
+										EstimatedDiameterMax: 1028.1109360402,
 									},
-									OrbitingBody: "Earth",
+									Miles: Miles{
+										EstimatedDiameterMin: 0.2856971822,
+										EstimatedDiameterMax: 0.6388383204,
+									},
+									Feet: Feet{
+										EstimatedDiameterMin: 1508.4816371145,
+										EstimatedDiameterMax: 3373.0674833982,
+									},
 								},
+								IsPotentiallyHazardousAsteroid: false,
+								CloseApproachData: []CloseApproachData{
+									{
+										CloseApproachDate:      "2024-05-06",
+										CloseApproachDateFull:  "2024-May-06 14:12",
+										EpochDateCloseApproach: 1715004720000,
+										RelativeVelocity: RelativeVelocity{
+											KilometersPerSecond: "16.8705110197",
+											KilometersPerHour:   "60733.8396709463",
+											MilesPerHour:        "37737.6460999833",
+										},
+										MissDistance: MissDistance{
+											Astronomical: "0.4369597061",
+											Lunar:        "169.9773256729",
+											Kilometers:   "65368241.308386007",
+											Miles:        "40617941.6700486166",
+										},
+										OrbitingBody: "Earth",
+									},
+								},
+								IsSentryObject: false,
 							},
-							IsSentryObject: false,
+							{
+								Links: NearEarthObjectLinks{
+									Self: "http://api.nasa.gov/neo/rest/v1/neo/3458580?api_key=DEMO_KEY",
+								},
+								ID:                 "3458580",
+								NeoReferenceID:     "3458580",
+								Name:               "(2009 HV44)",
+								NasaJPLURL:         "https://ssd.jpl.nasa.gov/tools/sbdb_lookup.html#/?sstr=3458580",
+								AbsoluteMagnitudeH: 18.81,
+								EstimatedDiameter: EstimatedDiameter{
+									Kilometers: Kilometers{
+										EstimatedDiameterMin: 0.4597851883,
+										EstimatedDiameterMax: 1.028110936,
+									},
+									Meters: Meters{
+										EstimatedDiameterMin: 459.7851882794,
+										EstimatedDiameterMax: 1028.1109360402,
+									},
+									Miles: Miles{
+										EstimatedDiameterMin: 0.2856971822,
+										EstimatedDiameterMax: 0.6388383204,
+									},
+									Feet: Feet{
+										EstimatedDiameterMin: 1508.4816371145,
+										EstimatedDiameterMax: 3373.0674833982,
+									},
+								},
+								IsPotentiallyHazardousAsteroid: true,
+								CloseApproachData: []CloseApproachData{
+									{
+										CloseApproachDate:      "2024-05-06",
+										CloseApproachDateFull:  "2024-May-06 14:12",
+										EpochDateCloseApproach: 1715004720000,
+										RelativeVelocity: RelativeVelocity{
+											KilometersPerSecond: "16.8705110197",
+											KilometersPerHour:   "60733.8396709463",
+											MilesPerHour:        "37737.6460999833",
+										},
+										MissDistance: MissDistance{
+											Astronomical: "0.4369597061",
+											Lunar:        "169.9773256729",
+											Kilometers:   "65368241.308386007",
+											Miles:        "40617941.6700486166",
+										},
+										OrbitingBody: "Earth",
+									},
+								},
+								IsSentryObject: false,
+							},
+							{
+								Links: NearEarthObjectLinks{
+									Self: "http://api.nasa.gov/neo/rest/v1/neo/3711166?api_key=DEMO_KEY",
+								},
+								ID:                 "3711166",
+								NeoReferenceID:     "3711166",
+								Name:               "(2015 DY53)",
+								NasaJPLURL:         "https://ssd.jpl.nasa.gov/tools/sbdb_lookup.html#/?sstr=3711166",
+								AbsoluteMagnitudeH: 18.81,
+								EstimatedDiameter: EstimatedDiameter{
+									Kilometers: Kilometers{
+										EstimatedDiameterMin: 0.4597851883,
+										EstimatedDiameterMax: 1.028110936,
+									},
+									Meters: Meters{
+										EstimatedDiameterMin: 459.7851882794,
+										EstimatedDiameterMax: 1028.1109360402,
+									},
+									Miles: Miles{
+										EstimatedDiameterMin: 0.2856971822,
+										EstimatedDiameterMax: 0.6388383204,
+									},
+									Feet: Feet{
+										EstimatedDiameterMin: 1508.4816371145,
+										EstimatedDiameterMax: 3373.0674833982,
+									},
+								},
+								IsPotentiallyHazardousAsteroid: true,
+								CloseApproachData: []CloseApproachData{
+									{
+										CloseApproachDate:      "2024-05-06",
+										CloseApproachDateFull:  "2024-May-06 14:12",
+										EpochDateCloseApproach: 1715004720000,
+										RelativeVelocity: RelativeVelocity{
+											KilometersPerSecond: "16.8705110197",
+											KilometersPerHour:   "60733.8396709463",
+											MilesPerHour:        "37737.6460999833",
+										},
+										MissDistance: MissDistance{
+											Astronomical: "0.4369597061",
+											Lunar:        "169.9773256729",
+											Kilometers:   "65368241.308386007",
+											Miles:        "40617941.6700486166",
+										},
+										OrbitingBody: "Earth",
+									},
+								},
+								IsSentryObject: false,
+							},
 						},
 					},
 				},
 			},
-			{
-				Links: Links{
-					Next: "http://api.nasa.gov/neo/rest/v1/feed?start_date=2024-05-08&end_date=2024-05-08&detailed=false&api_key=DEMO_KEY",
-					Prev: "http://api.nasa.gov/neo/rest/v1/feed?start_date=2024-05-08&end_date=2024-05-08&detailed=false&api_key=DEMO_KEY",
-					Self: "http://api.nasa.gov/neo/rest/v1/feed?start_date=2024-05-07&end_date=2024-05-07&detailed=false&api_key=DEMO_KEY",
-				},
-				ElementCount: 3,
-				NearEarthObjects: map[string][]NearEarthObject{
-					"2024-05-07": {
-						{
-							Links: NearEarthObjectLinks{
-								Self: "http://api.nasa.gov/neo/rest/v1/neo/2481457?api_key=DEMO_KEY",
-							},
-							ID:                 "2481457",
-							NeoReferenceID:     "2481457",
-							Name:               "481457 (2006 XD2)",
-							NasaJPLURL:         "https://ssd.jpl.nasa.gov/tools/sbdb_lookup.html#/?sstr=2481457",
-							AbsoluteMagnitudeH: 18.81,
-							EstimatedDiameter: EstimatedDiameter{
-								Kilometers: Kilometers{
-									EstimatedDiameterMin: 0.4597851883,
-									EstimatedDiameterMax: 1.028110936,
-								},
-								Meters: Meters{
-									EstimatedDiameterMin: 459.7851882794,
-									EstimatedDiameterMax: 1028.1109360402,
-								},
-								Miles: Miles{
-									EstimatedDiameterMin: 0.2856971822,
-									EstimatedDiameterMax: 0.6388383204,
-								},
-								Feet: Feet{
-									EstimatedDiameterMin: 1508.4816371145,
-									EstimatedDiameterMax: 3373.0674833982,
-								},
-							},
-							IsPotentiallyHazardousAsteroid: false,
-							CloseApproachData: []CloseApproachData{
-								{
-									CloseApproachDate:      "2024-05-06",
-									CloseApproachDateFull:  "2024-May-06 14:12",
-									EpochDateCloseApproach: 1715004720000,
-									RelativeVelocity: RelativeVelocity{
-										KilometersPerSecond: "16.8705110197",
-										KilometersPerHour:   "60733.8396709463",
-										MilesPerHour:        "37737.6460999833",
-									},
-									MissDistance: MissDistance{
-										Astronomical: "0.4369597061",
-										Lunar:        "169.9773256729",
-										Kilometers:   "65368241.308386007",
-										Miles:        "40617941.6700486166",
-									},
-									OrbitingBody: "Earth",
-								},
-							},
-							IsSentryObject: false,
-						},
-						{
-							Links: NearEarthObjectLinks{
-								Self: "http://api.nasa.gov/neo/rest/v1/neo/3458580?api_key=DEMO_KEY",
-							},
-							ID:                 "3458580",
-							NeoReferenceID:     "3458580",
-							Name:               "(2009 HV44)",
-							NasaJPLURL:         "https://ssd.jpl.nasa.gov/tools/sbdb_lookup.html#/?sstr=3458580",
-							AbsoluteMagnitudeH: 18.81,
-							EstimatedDiameter: EstimatedDiameter{
-								Kilometers: Kilometers{
-									EstimatedDiameterMin: 0.4597851883,
-									EstimatedDiameterMax: 1.028110936,
-								},
-								Meters: Meters{
-									EstimatedDiameterMin: 459.7851882794,
-									EstimatedDiameterMax: 1028.1109360402,
-								},
-								Miles: Miles{
-									EstimatedDiameterMin: 0.2856971822,
-									EstimatedDiameterMax: 0.6388383204,
-								},
-								Feet: Feet{
-									EstimatedDiameterMin: 1508.4816371145,
-									EstimatedDiameterMax: 3373.0674833982,
-								},
-							},
-							IsPotentiallyHazardousAsteroid: true,
-							CloseApproachData: []CloseApproachData{
-								{
-									CloseApproachDate:      "2024-05-06",
-									CloseApproachDateFull:  "2024-May-06 14:12",
-									EpochDateCloseApproach: 1715004720000,
-									RelativeVelocity: RelativeVelocity{
-										KilometersPerSecond: "16.8705110197",
-										KilometersPerHour:   "60733.8396709463",
-										MilesPerHour:        "37737.6460999833",
-									},
-									MissDistance: MissDistance{
-										Astronomical: "0.4369597061",
-										Lunar:        "169.9773256729",
-										Kilometers:   "65368241.308386007",
-										Miles:        "40617941.6700486166",
-									},
-									OrbitingBody: "Earth",
-								},
-							},
-							IsSentryObject: false,
-						},
-						{
-							Links: NearEarthObjectLinks{
-								Self: "http://api.nasa.gov/neo/rest/v1/neo/3711166?api_key=DEMO_KEY",
-							},
-							ID:                 "3711166",
-							NeoReferenceID:     "3711166",
-							Name:               "(2015 DY53)",
-							NasaJPLURL:         "https://ssd.jpl.nasa.gov/tools/sbdb_lookup.html#/?sstr=3711166",
-							AbsoluteMagnitudeH: 18.81,
-							EstimatedDiameter: EstimatedDiameter{
-								Kilometers: Kilometers{
-									EstimatedDiameterMin: 0.4597851883,
-									EstimatedDiameterMax: 1.028110936,
-								},
-								Meters: Meters{
-									EstimatedDiameterMin: 459.7851882794,
-									EstimatedDiameterMax: 1028.1109360402,
-								},
-								Miles: Miles{
-									EstimatedDiameterMin: 0.2856971822,
-									EstimatedDiameterMax: 0.6388383204,
-								},
-								Feet: Feet{
-									EstimatedDiameterMin: 1508.4816371145,
-									EstimatedDiameterMax: 3373.0674833982,
-								},
-							},
-							IsPotentiallyHazardousAsteroid: true,
-							CloseApproachData: []CloseApproachData{
-								{
-									CloseApproachDate:      "2024-05-06",
-									CloseApproachDateFull:  "2024-May-06 14:12",
-									EpochDateCloseApproach: 1715004720000,
-									RelativeVelocity: RelativeVelocity{
-										KilometersPerSecond: "16.8705110197",
-										KilometersPerHour:   "60733.8396709463",
-										MilesPerHour:        "37737.6460999833",
-									},
-									MissDistance: MissDistance{
-										Astronomical: "0.4369597061",
-										Lunar:        "169.9773256729",
-										Kilometers:   "65368241.308386007",
-										Miles:        "40617941.6700486166",
-									},
-									OrbitingBody: "Earth",
-								},
-							},
-							IsSentryObject: false,
-						},
+			expected: NeoWs{
+				Total: 5,
+				NearEarthObjects: []NearEarthObjects{
+					{
+						Date:                           "2024-05-06",
+						ID:                             "2474425",
+						Name:                           "474425 (2002 YF4)",
+						IsPotentiallyHazardousAsteroid: false,
+					},
+					{
+						Date:                           "2024-05-06",
+						ID:                             "3277400",
+						Name:                           "(2005 HN3)",
+						IsPotentiallyHazardousAsteroid: true,
+					},
+					{
+						Date:                           "2024-05-07",
+						ID:                             "2481457",
+						Name:                           "481457 (2006 XD2)",
+						IsPotentiallyHazardousAsteroid: false,
+					},
+					{
+						Date:                           "2024-05-07",
+						ID:                             "3458580",
+						Name:                           "(2009 HV44)",
+						IsPotentiallyHazardousAsteroid: true,
+					},
+					{
+						Date:                           "2024-05-07",
+						ID:                             "3711166",
+						Name:                           "(2015 DY53)",
+						IsPotentiallyHazardousAsteroid: true,
 					},
 				},
 			},
-		}
+		},
+	}
 
-		result := FormatNearWsResponses(neoWsData)
+	for _, test := range tests {
+		t.Run(test.name, func(t *testing.T) {
+			result := FormatNearWsResponses(test.args)
 
-		expected := NeoWs{
-			Total: 5,
-			NearEarthObjects: []NearEarthObjects{
-				{
-					Date:                           "2024-05-06",
-					ID:                             "2474425",
-					Name:                           "474425 (2002 YF4)",
-					IsPotentiallyHazardousAsteroid: false,
-				},
-				{
-					Date:                           "2024-05-06",
-					ID:                             "3277400",
-					Name:                           "(2005 HN3)",
-					IsPotentiallyHazardousAsteroid: true,
-				},
-				{
-					Date:                           "2024-05-07",
-					ID:                             "2481457",
-					Name:                           "481457 (2006 XD2)",
-					IsPotentiallyHazardousAsteroid: false,
-				},
-				{
-					Date:                           "2024-05-07",
-					ID:                             "3458580",
-					Name:                           "(2009 HV44)",
-					IsPotentiallyHazardousAsteroid: true,
-				},
-				{
-					Date:                           "2024-05-07",
-					ID:                             "3711166",
-					Name:                           "(2015 DY53)",
-					IsPotentiallyHazardousAsteroid: true,
-				},
-			},
-		}
-
-		if !reflect.DeepEqual(result, expected) {
-			t.Errorf("unexpected result. Expected: %+v, Got: %+v", expected, result)
-		}
-	})
+			assert.Equal(t, test.expected, result)
+		})
+	}
 }
