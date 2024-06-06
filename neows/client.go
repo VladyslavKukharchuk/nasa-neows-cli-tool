@@ -13,17 +13,16 @@ type ClientInterface interface {
 }
 
 type Client struct {
-	apiKey string
+	baseURL string
+	apiKey  string
 }
 
-func NewClient(apiKey string) Client {
-	return Client{apiKey: apiKey}
+func NewClient(baseURL string, apiKey string) Client {
+	return Client{baseURL, apiKey}
 }
 
 func (c *Client) GetNeoWsByTimePeriod(startDate, endDate string) (*NeoWsResponse, error) {
-	const URL = "https://api.nasa.gov/neo/rest/v1/"
-
-	baseURL, err := url.Parse(URL + "feed")
+	requestURL, err := url.Parse(c.baseURL + "feed")
 	if err != nil {
 		return nil, err
 	}
@@ -32,9 +31,9 @@ func (c *Client) GetNeoWsByTimePeriod(startDate, endDate string) (*NeoWsResponse
 	params.Add("start_date", startDate)
 	params.Add("end_date", endDate)
 	params.Add("api_key", c.apiKey)
-	baseURL.RawQuery = params.Encode()
+	requestURL.RawQuery = params.Encode()
 
-	resp, err := http.Get(baseURL.String())
+	resp, err := http.Get(requestURL.String())
 	if err != nil {
 		return nil, err
 	}

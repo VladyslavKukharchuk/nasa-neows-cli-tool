@@ -12,7 +12,7 @@ type Service struct {
 }
 
 func NewService(client ClientInterface) *Service {
-	return &Service{client: client}
+	return &Service{client}
 }
 
 func (s *Service) GetNEOsByDaysAgo(count int) (string, error) {
