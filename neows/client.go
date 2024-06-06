@@ -8,7 +8,21 @@ import (
 	"net/url"
 )
 
-func getNeoWsByTimePeriod(URL, startDate, endDate, apiKey string) (*NeoWsResponse, error) {
+type ClientInterface interface {
+	GetNeoWsByTimePeriod(startDate, endDate string) (*NeoWsResponse, error)
+}
+
+type Client struct {
+	apiKey string
+}
+
+func NewClient(apiKey string) Client {
+	return Client{apiKey: apiKey}
+}
+
+func (c *Client) GetNeoWsByTimePeriod(startDate, endDate string) (*NeoWsResponse, error) {
+	const URL = "https://api.nasa.gov/neo/rest/v1/"
+
 	baseURL, err := url.Parse(URL + "feed")
 	if err != nil {
 		return nil, err
@@ -17,7 +31,7 @@ func getNeoWsByTimePeriod(URL, startDate, endDate, apiKey string) (*NeoWsRespons
 	params := url.Values{}
 	params.Add("start_date", startDate)
 	params.Add("end_date", endDate)
-	params.Add("api_key", apiKey)
+	params.Add("api_key", c.apiKey)
 	baseURL.RawQuery = params.Encode()
 
 	resp, err := http.Get(baseURL.String())

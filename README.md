@@ -82,11 +82,8 @@ make run
 ### Run tests
 
 ```sh
-make test API_KEY=<your API key>
+make test
 ```
-
-We need an API key to run the tests
-Replace `<your API key>` with your actual API key.
 
 ### Show test cover 
 

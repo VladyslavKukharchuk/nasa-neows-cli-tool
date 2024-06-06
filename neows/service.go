@@ -7,10 +7,18 @@ import (
 	"time"
 )
 
-func GetNEOsByDaysAgo(URL string, apiKey string, count int) (string, error) {
-	dates := getDates(count)
+type Service struct {
+	client ClientInterface
+}
 
-	neoWs, err := GetNEOsByDates(URL, apiKey, dates)
+func NewService(client ClientInterface) *Service {
+	return &Service{client: client}
+}
+
+func (s *Service) GetNEOsByDaysAgo(count int) (string, error) {
+	dates := s.getDates(count)
+
+	neoWs, err := s.GetNEOsByDates(dates)
 	if err != nil {
 		return "", err
 	}
@@ -23,7 +31,7 @@ func GetNEOsByDaysAgo(URL string, apiKey string, count int) (string, error) {
 	return string(neoWsJSON), nil
 }
 
-func getDates(days int) []string {
+func (s *Service) getDates(days int) []string {
 	dates := make([]string, 0)
 	currentTime := time.Now()
 
@@ -36,7 +44,7 @@ func getDates(days int) []string {
 	return dates
 }
 
-func GetNEOsByDates(URL string, apiKey string, dates []string) (NeoWs, error) {
+func (s *Service) GetNEOsByDates(dates []string) (NeoWs, error) {
 	var neoWsResponses = make([]*NeoWsResponse, 0, len(dates))
 	var mu sync.Mutex
 	var g = errgroup.Group{}
@@ -45,7 +53,7 @@ func GetNEOsByDates(URL string, apiKey string, dates []string) (NeoWs, error) {
 		date := date
 
 		g.Go(func() error {
-			neoWsData, err := getNeoWsByTimePeriod(URL, date, date, apiKey)
+			neoWsData, err := s.client.GetNeoWsByTimePeriod(date, date)
 			if err != nil {
 				return err
 			}
@@ -62,18 +70,18 @@ func GetNEOsByDates(URL string, apiKey string, dates []string) (NeoWs, error) {
 		return NeoWs{}, err
 	}
 
-	neoWs := FormatNearWsResponses(neoWsResponses)
+	neoWs := s.formatNearWsResponses(neoWsResponses)
 
 	return neoWs, nil
 }
 
-func FormatNearWsResponses(neoWsData []*NeoWsResponse) NeoWs {
+func (s *Service) formatNearWsResponses(neoWsData []*NeoWsResponse) NeoWs {
 	var total int
 	neoObjectsFormated := make([]NearEarthObjects, 0)
 
 	for _, data := range neoWsData {
 		total += data.ElementCount
-		neoObjectsFormated = append(neoObjectsFormated, formatNearObjects(data.NearEarthObjects)...)
+		neoObjectsFormated = append(neoObjectsFormated, s.formatNearObjects(data.NearEarthObjects)...)
 	}
 
 	return NeoWs{
@@ -82,7 +90,7 @@ func FormatNearWsResponses(neoWsData []*NeoWsResponse) NeoWs {
 	}
 }
 
-func formatNearObjects(neoObjects map[string][]NearEarthObject) []NearEarthObjects {
+func (s *Service) formatNearObjects(neoObjects map[string][]NearEarthObject) []NearEarthObjects {
 	neoObjectsFormated := make([]NearEarthObjects, 0)
 
 	for date, neoObjectsByDay := range neoObjects {
