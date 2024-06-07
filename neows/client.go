@@ -8,8 +8,21 @@ import (
 	"net/url"
 )
 
-func getNeoWsByTimePeriod(URL, startDate, endDate, apiKey string) (*NeoWsResponse, error) {
-	baseURL, err := url.Parse(URL + "feed")
+type ClientInterface interface {
+	GetNeoWsByTimePeriod(startDate, endDate string) (*NeoWsResponse, error)
+}
+
+type Client struct {
+	baseURL string
+	apiKey  string
+}
+
+func NewClient(baseURL string, apiKey string) Client {
+	return Client{baseURL, apiKey}
+}
+
+func (c *Client) GetNeoWsByTimePeriod(startDate, endDate string) (*NeoWsResponse, error) {
+	requestURL, err := url.Parse(c.baseURL + "feed")
 	if err != nil {
 		return nil, err
 	}
@@ -17,10 +30,10 @@ func getNeoWsByTimePeriod(URL, startDate, endDate, apiKey string) (*NeoWsRespons
 	params := url.Values{}
 	params.Add("start_date", startDate)
 	params.Add("end_date", endDate)
-	params.Add("api_key", apiKey)
-	baseURL.RawQuery = params.Encode()
+	params.Add("api_key", c.apiKey)
+	requestURL.RawQuery = params.Encode()
 
-	resp, err := http.Get(baseURL.String())
+	resp, err := http.Get(requestURL.String())
 	if err != nil {
 		return nil, err
 	}
