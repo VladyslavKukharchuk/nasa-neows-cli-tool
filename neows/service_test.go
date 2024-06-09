@@ -16,7 +16,7 @@ func (m *mockClient) GetNeoWsByTimePeriod(startDate, endDate string) (*NeoWsResp
 	return args.Get(0).(*NeoWsResponse), args.Error(1)
 }
 
-func TestGetNEOsByDates(t *testing.T) {
+func TestService_GetNEOsByDates(t *testing.T) {
 	type args struct {
 		URL    string
 		apiKey string

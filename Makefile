@@ -12,7 +12,7 @@ run:
 	docker start -a $(DOCKER_CONTAINER)
 
 test:
-	go test ./... -coverprofile=coverage.out
+	go test -v ./... -coverprofile=coverage.out
 
 test-cover-cli:
 	go tool cover -func=coverage.out
