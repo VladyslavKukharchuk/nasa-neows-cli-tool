@@ -22,7 +22,7 @@ func NewClient(baseURL string, apiKey string) Client {
 }
 
 func (c *Client) GetNeoWsByTimePeriod(startDate, endDate string) (*NeoWsResponse, error) {
-	requestURL, err := url.Parse(c.baseURL + "feed")
+	requestURL, err := url.Parse(c.baseURL + "/feed")
 	if err != nil {
 		return nil, err
 	}
@@ -47,7 +47,6 @@ func (c *Client) GetNeoWsByTimePeriod(startDate, endDate string) (*NeoWsResponse
 
 	if resp.StatusCode != http.StatusOK {
 		var apiError NeoWsError
-
 		err := json.Unmarshal(bytes, &apiError)
 		if err != nil {
 			return nil, err

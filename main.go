@@ -20,7 +20,7 @@ func main() {
 }
 
 func run() error {
-	const apiURL = "https://api.nasa.gov/neo/rest/v1/"
+	const apiURL = "https://api.nasa.gov/neo/rest/v1"
 	apiKey := os.Getenv("API_KEY")
 
 	client := neows.NewClient(apiURL, apiKey)
