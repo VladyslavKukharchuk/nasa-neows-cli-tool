@@ -24,12 +24,13 @@ func TestService_GetNEOsByDates(t *testing.T) {
 	}
 
 	tests := []struct {
-		name                        string
-		args                        args
-		mockGetNeoWsByTimePeriod    []*NeoWsResponse
-		mockGetNeoWsByTimePeriodErr []error
-		expected                    NeoWs
-		expectedErr                 error
+		name                                      string
+		args                                      args
+		mockGetNeoWsByTimePeriod                  []*NeoWsResponse
+		mockGetNeoWsByTimePeriodErr               []error
+		expectedNumberOfCallsGetNeoWsByTimePeriod int
+		expected                                  NeoWs
+		expectedErr                               error
 	}{
 		{
 			name: "success for single record",
@@ -148,7 +149,8 @@ func TestService_GetNEOsByDates(t *testing.T) {
 					},
 				},
 			}},
-			mockGetNeoWsByTimePeriodErr: []error{nil},
+			mockGetNeoWsByTimePeriodErr:               []error{nil},
+			expectedNumberOfCallsGetNeoWsByTimePeriod: 1,
 			expected: NeoWs{
 				Total: 2,
 				NearEarthObjects: []NearEarthObjects{
@@ -348,7 +350,8 @@ func TestService_GetNEOsByDates(t *testing.T) {
 					},
 				},
 			},
-			mockGetNeoWsByTimePeriodErr: []error{nil, nil},
+			mockGetNeoWsByTimePeriodErr:               []error{nil, nil},
+			expectedNumberOfCallsGetNeoWsByTimePeriod: 2,
 			expected: NeoWs{
 				Total: 3,
 				NearEarthObjects: []NearEarthObjects{
@@ -389,6 +392,7 @@ func TestService_GetNEOsByDates(t *testing.T) {
 			result, err := service.GetNEOsByDates(test.args.dates)
 			assert.Equal(t, test.expected, result)
 			assert.Equal(t, test.expectedErr, err)
+			mockClient.AssertNumberOfCalls(t, "GetNeoWsByTimePeriod", test.expectedNumberOfCallsGetNeoWsByTimePeriod)
 		})
 	}
 }
